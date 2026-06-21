@@ -11,9 +11,6 @@ api.privatemode.ai
 cdn.confidential.cloud
 
 # --- Google (Gmail + Calendar) — OAuth + API ---------------------------------
-oauth2.googleapis.com
-www.googleapis.com
-gmail.googleapis.com
 .googleapis.com
 
 # --- Amazing Marvin ----------------------------------------------------------
