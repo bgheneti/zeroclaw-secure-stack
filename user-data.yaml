@@ -105,7 +105,7 @@ runcmd:
   # ---- fetch the stack -------------------------------------------------------
   - mkdir -p /opt && chown assistant:assistant /opt
   # >>> PLACEHOLDER STACK_REPO:
-  - sudo -u assistant git clone https://github.com/PLACEHOLDER/assistant-stack.git /opt/assistant-stack || true
+  - sudo -u assistant git clone https://github.com/bgheneti/zeroclaw-secure-stack /opt/assistant-stack || true
   # ---- prep .env (secrets still need filling by hand) ------------------------
   - cd /opt/assistant-stack && test -f .env || sudo -u assistant cp .env.example .env
   # ---- friendly next-steps banner --------------------------------------------
