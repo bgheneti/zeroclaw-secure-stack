@@ -8,13 +8,19 @@
 # NOT automated — cloud-init preps everything up to that point.
 #
 # -----------------------------------------------------------------------------
-# LAUNCH ON A MAC WITH MULTIPASS:
-#   multipass launch 24.04 \
-#     --name assistant \
-#     --cpus 4 --memory 8G --disk 40G \
-#     --cloud-init user-data.yaml
+# LAUNCH ON A MAC WITH MULTIPASS (use the helper — it injects your SSH key + .env):
+#   ./launch-multipass.sh                 # reads ./.env, renders cloud-init, launches
+#   # what it does for you: substitutes __SSH_PUBLIC_KEY__ from .env into the
+#   # cloud-init, `multipass launch ... --cloud-init <rendered>`, waits for boot,
+#   # then TRANSFERS your local ./.env into /opt/assistant-stack/.env over multipass's
+#   # channel (so secrets never enter cloud-init metadata).
 #   multipass shell assistant            # get a shell on the VM
 #   multipass info assistant             # note the IPv4 (for the ssh tunnel below)
+#
+# >>> SECRETS NOTE: the SSH public key is the only thing rendered into cloud-init
+#     (it's public). Your .env (secrets) is transferred AFTER boot over multipass's
+#     local channel and lands at /opt/assistant-stack/.env (0600, owner assistant) —
+#     it is NOT baked into the cloud-init datasource.
 #
 # WHY A VM (vs bare Docker Desktop on the Mac):
 #   * `internal: true` dashboards are reachable on-box (no LinuxKit/vpnkit hop) —
@@ -34,10 +40,6 @@
 # >>> TEE CHECK: PrivateMode does REMOTE enclave attestation over the network, so
 #     running the proxy inside a (nested) VM should be fine — but VERIFY the TEE
 #     chain still attests from inside Multipass; don't assume.
-#
-# >>> PLACEHOLDER: set STACK_REPO to your git URL containing the assistant-stack
-#     folder (docker-compose.yml + .env.example + squid/ + litellm/ + mcp/ +
-#     onecli/ + Dockerfile.sandbox + scripts/).
 # =============================================================================
 
 package_update: true
@@ -51,13 +53,16 @@ packages:
   - make
 
 users:
+  - default                      # KEEP: multipass relies on the `ubuntu` user for `exec`
   - name: assistant
     groups: [sudo, docker]
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    # >>> PLACEHOLDER: paste your SSH public key so you can ssh + tunnel from the Mac
+    # Injected by launch-multipass.sh from SSH_PUBLIC_KEY in your local .env.
+    # (If you run `multipass launch --cloud-init user-data.yaml` directly, this
+    #  token stays literal and SSH won't work — use launch-multipass.sh.)
     ssh_authorized_keys:
-      - ssh-ed25519 AAAA_REPLACE_WITH_YOUR_PUBLIC_KEY you@mac
+      - __SSH_PUBLIC_KEY__
 
 write_files:
   - path: /etc/profile.d/assistant.sh
@@ -75,8 +80,10 @@ write_files:
 
       echo "== 1. .env =="
       test -f .env || cp .env.example .env
-      grep -q 'REPLACE' .env && \
-        echo "  !! edit $STACK_DIR/.env — secrets still contain REPLACE placeholders" || true
+      if grep -q 'REPLACE\|change-me' .env; then
+        echo "  !! .env not fully populated (placeholders present)."
+        echo "     Use ./launch-multipass.sh (injects your local .env), or edit $STACK_DIR/.env."
+      fi
 
       echo "== 2. Supporting stack (waits for health) =="
       docker compose up -d --wait \
@@ -104,17 +111,16 @@ runcmd:
   - systemctl enable --now docker
   # ---- fetch the stack -------------------------------------------------------
   - mkdir -p /opt && chown assistant:assistant /opt
-  # >>> PLACEHOLDER STACK_REPO:
-  - sudo -u assistant git clone https://github.com/bgheneti/zeroclaw-secure-stack /opt/assistant-stack || true
-  # ---- prep .env (secrets still need filling by hand) ------------------------
+  - sudo -u assistant git clone https://github.com/bgheneti/zeroclaw-secure-stack.git /opt/assistant-stack || true
+  # ---- .env: template fallback now; launch-multipass.sh TRANSFERS your real .env
+  #      over multipass's channel after boot (so secrets never enter cloud-init) ----
   - cd /opt/assistant-stack && test -f .env || sudo -u assistant cp .env.example .env
   # ---- friendly next-steps banner --------------------------------------------
-  - echo "Edit /opt/assistant-stack/.env (fill secrets), then run /opt/bring-up.sh" > /etc/motd
+  - echo "Run /opt/bring-up.sh  (launch-multipass.sh transfers your real .env in after boot)" > /etc/motd
 
 # After boot:
 #   multipass shell assistant   (or  ssh assistant@<vm-ipv4>)
-#   nano /opt/assistant-stack/.env          # fill the REPLACE_* secrets + model id
-#   bash /opt/bring-up.sh
+#   bash /opt/bring-up.sh        # .env was seeded from your local copy by the wrapper
 # =============================================================================
 # NOTE: no Node, no pnpm, no Claude Code, no NanoClaw host process. ZeroClaw is a
 # container the compose pulls. The old finish-nanoclaw-setup.sh is deleted.

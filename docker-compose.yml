@@ -224,7 +224,7 @@ services:
   # runtime.kind=native here (its real tools are remote MCP; little local code to
   # sandbox). For decision-4 parity, give it a dind-* sidecar like 'unrestricted'.
   zeroclaw-updates:
-    image: ghcr.io/zeroclaw-labs/zeroclaw:sha256:61756adcc3786ad4a9113599089c76edc7a4b9d4c738cf6aac8357f25e7af910  # v0.8.1
+    image: ghcr.io/zeroclaw-labs/zeroclaw:v0.8.1-debian@sha256:9d6f99bfc1d0adfe77d6302f52dd2a32969fbe04067f3e9ce560776d1efeabb9
     container_name: zeroclaw-updates
     restart: unless-stopped
     depends_on: [litellm, onecli, mcp-personal, squid]
@@ -244,7 +244,7 @@ services:
   # -------------------------------------------------- zeroclaw-tasks (TIER 2) -
   # Signal front end. Tools = Marvin, brokered via mcp-tasks + OneCLI.
   zeroclaw-tasks:
-    image: ghcr.io/zeroclaw-labs/zeroclaw:sha256:61756adcc3786ad4a9113599089c76edc7a4b9d4c738cf6aac8357f25e7af910  # v0.8.1
+    image: ghcr.io/zeroclaw-labs/zeroclaw:v0.8.1-debian@sha256:9d6f99bfc1d0adfe77d6302f52dd2a32969fbe04067f3e9ce560776d1efeabb9
     container_name: zeroclaw-tasks
     restart: unless-stopped
     depends_on: [litellm, onecli, mcp-tasks, squid]
@@ -267,7 +267,7 @@ services:
   # shared /workspace volume (containers are disposable; the workspace is not).
   # Sandbox image is the custom assistant-sandbox:1 (built INTO the dind — see PROJECT-STATE).
   zeroclaw-unrestricted:
-    image: ghcr.io/zeroclaw-labs/zeroclaw:sha256:61756adcc3786ad4a9113599089c76edc7a4b9d4c738cf6aac8357f25e7af910  # v0.8.1
+    image: ghcr.io/zeroclaw-labs/zeroclaw:v0.8.1-debian@sha256:9d6f99bfc1d0adfe77d6302f52dd2a32969fbe04067f3e9ce560776d1efeabb9
     container_name: zeroclaw-unrestricted
     restart: unless-stopped
     depends_on: [litellm, dind-unrestricted, squid]
