@@ -115,6 +115,8 @@ runcmd:
   # ---- .env: template fallback now; launch-multipass.sh TRANSFERS your real .env
   #      over multipass's channel after boot (so secrets never enter cloud-init) ----
   - cd /opt/assistant-stack && test -f .env || sudo -u assistant cp .env.example .env
+  - sudo -u assistant chown -R 65534:65534 /opt/assistant-stack/zeroclaw
+  - sudo -u assistant chmod -R /opt/assistant-stack/zeroclaw/*/config.toml
   # ---- friendly next-steps banner --------------------------------------------
   - echo "Run /opt/bring-up.sh  (launch-multipass.sh transfers your real .env in after boot)" > /etc/motd
 

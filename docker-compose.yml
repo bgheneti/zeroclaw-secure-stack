@@ -233,10 +233,10 @@ services:
       HTTPS_PROXY: http://squid:3128
       NO_PROXY: litellm,mcp-personal,localhost,127.0.0.1
     volumes:
-      - ./zeroclaw/updates:/root/.zeroclaw
+      - ./zeroclaw/updates:/zeroclaw-data
       - ./zeroclaw/config.template.toml:/etc/zeroclaw/config.template.toml:ro
     ports:
-      - "127.0.0.1:3000:3000"            # gateway dashboard (pairing-authed) — localhost only
+      - "127.0.0.1:3000:42617"            # gateway dashboard (pairing-authed) — localhost only
 
   # -------------------------------------------------- zeroclaw-tasks (TIER 2) -
   # Signal front end. Tools = Marvin, brokered via mcp-tasks + OneCLI.
@@ -253,10 +253,10 @@ services:
       HTTPS_PROXY: http://squid:3128
       NO_PROXY: litellm,mcp-tasks,localhost,127.0.0.1
     volumes:
-      - ./zeroclaw/tasks:/root/.zeroclaw
+      - ./zeroclaw/tasks:/zeroclaw-data
       - ./zeroclaw/config.template.toml:/etc/zeroclaw/config.template.toml:ro
     ports:
-      - "127.0.0.1:3001:3000"
+      - "127.0.0.1:3001:42617"
 
   # --------------------------------------------- zeroclaw-unrestricted (TIER) -
   # No channel (CLI/dashboard only). Local power tools: shell/file/browser/http/git.
@@ -281,13 +281,12 @@ services:
       HTTPS_PROXY: http://squid:3128
       NO_PROXY: litellm,dind-unrestricted,localhost,127.0.0.1
     volumes:
-      - ./zeroclaw/unrestricted:/root/.zeroclaw
+      - ./zeroclaw/unrestricted:/zeroclaw-data
       # SAME named volume + SAME path as dind below, so mount_workspace binds resolve
       # against the dind daemon's FS and agent + tool containers share one workspace.
       - zeroclaw-unrestricted-workspace:/workspace
-      - ./zeroclaw/config.template.toml:/etc/zeroclaw/config.template.toml:ro
     ports:
-      - "127.0.0.1:3002:3000"
+      - "127.0.0.1:3002:42617"
 
   # ------------------------------------------------------- dind-unrestricted -
   # Contained Docker daemon for the unrestricted tier's tool runtime. It is on
