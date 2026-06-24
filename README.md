@@ -2,9 +2,21 @@
 
 ![status](https://img.shields.io/badge/status-pilot-orange) ![platform](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Multipass-blue)
 
-**Personal agents that can't exfiltrate your credentials or call home — by construction, not by policy.**
+**A security-hardened way to run ZeroClaw — agents that can't exfiltrate your credentials or call home, by construction, not by policy.**
 > Composes proven open-source components under one default-deny roof. Adds a tiered identity 
 > model and one-command bring-up on top. Does **not** reinvent sandboxing or secret injection.
+
+## What you get
+
+ZeroClaw running in an isolated VM on your own machine, reachable over WhatsApp, Telegram, 
+Signal, or Matrix. It can manage your email, tasks, and calendar — but it never holds your 
+API keys directly, can't open arbitrary URLs, and can't phone home to a model provider 
+without going through an allowlisted egress proxy first.
+
+Three tiers ship by default: **updates** (Gmail + WhatsApp, your personal identity), 
+**tasks** (Marvin + Signal, a separate identity), and **unrestricted** (shell and file 
+tools, sandboxed in Docker-in-Docker with no SaaS credentials). Each tier is its own 
+container with its own blast radius.
 
 ```bash
 brew install multipass
