@@ -73,45 +73,44 @@ git clone https://github.com/bgheneti/secure-assistant-stack.git
 cd secure-assistant-stack
 ```
 
-#### 2. Configure  · *Mac*
+#### 2. Configure
 ```bash
 cp .env.example .env      # fill in the placeholders (encryption key, API keys…)
 $EDITOR tiers.yaml        # optional: add/remove tiers, identities, ports, tools
 ```
 > the 3 default tiers work out of the box
-#### 3. Setup the VM  · *Mac*
+#### 3. Setup the VM
 ```bash
 ./launch-multipass.sh --local
 ```
 
-#### 4. Start the stack  · *VM, as `assistant`*
+#### 4. Start the stack
 ```bash
-multipass shell assistant     # on the Mac — you're now `ubuntu` in the VM
-sudo -iu assistant            # switch to the service account (docker + .env access)
-cd $STACK_DIR
-bash /opt/bring-up.sh         # generates tier configs from `tiers.yaml` starts stack. Re-run it any time after editing `.env`/`tiers.yaml`.
+multipass exec assistant -- sudo -iu assistant bash /opt/bring-up.sh
 ```
-#### 5. Verify  · *VM, as `assistant`*
+#### 5. Verify
 
 ```bash
-bash scripts/preflight.sh                                  # goal: FAIL=0
-docker compose exec zeroclaw-updates zeroclaw doctor       # agent + MCP health
-```
-
-#### 6. Authorize SaaS + bind a channel  · *the only manual part*
-
-```bash
-# OneCLI dashboard (forward from the Mac): ssh -L 10254:127.0.0.1:10254 ubuntu@<vm-ip>
-#   Settings → Connections: connect Gmail -> 'personal'; paste Marvin API key -> 'tasks'
-docker compose exec zeroclaw-updates zeroclaw channel start
+#goal: FAIL=0
+multipass exec assistant -- sudo -iu assistant bash /opt/assistant-stack/scripts/preflight.sh
+# agent + MCP health    
+multipass exec assistant -- sudo -iu assistant \
+  bash -c "cd /opt/assistant-stack && docker compose exec zeroclaw-updates zeroclaw doctor"
 ```
 
-#### 7. Access your ZeroClaw Stack on your Mac 🌟 
+#### 6. Use your ZeroClaw Stack as an admin 🌟 
 ```bash
-multipass ps # to get vm-ip
+multipass info assistant # to get vm-ip
 ssh -L 10254:127.0.0.1:10254 -L 3000:127.0.0.1:3000 ubuntu@<vm-ip> # add -L 300X:127.0.0.1:300X to use other tiers
 ```
-Navigate to http://localhost:3000 in your browser
+
+##### Chat with your zeroclaw agents via the dashboard
+Navigate to http://localhost:3000 in your browser to use ZeroClaw tier 1 (updates) agents
+##### Add API credentials to your Vault (Gmail, Marvin, etc)
+Navigate to http://localhost:10254
+> Settings → Connections: connect Gmail -> 'personal'; paste Marvin API key -> 'tasks' 
+##### Pair a Channel with your phone, after adding it in the zeroclaw dashboard
+`multipass exec assistant -- sudo -iu assistant docker exec zeroclaw-updates zeroclaw channel start`
 
 ## Components
 
