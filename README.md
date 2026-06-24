@@ -278,7 +278,3 @@ The stack has only been validated on macOS + Multipass. Promising untested alter
 ## Contributing
 
 Contributions are welcome. This is currently a small pilot — open an issue first to discuss the change you'd like to make. Please do not file public issues for security vulnerabilities; see [docs/SECURITY.md](docs/SECURITY.md) and email the maintainer privately instead. A `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` will be added as the project grows.
-
-## License
-
-This project does not yet declare a license. Until a `LICENSE` file is added, the source here is **all rights reserved**. (Picking an OSI license — e.g. MIT or Apache-2.0, matching the components this composes — is a recommended next step before broad sharing.)
