@@ -129,7 +129,7 @@ flowchart TB
   classDef user     fill:#f0eee9,stroke:#57606a,stroke-width:1.75px,color:#1f2328
   classDef channel  fill:#d6eef2,stroke:#0e7490,stroke-width:1.75px,color:#083344
  
-  CHAN(["📱 paired channel<br/>WhatsApp · Telegram · Matrix"]):::channel
+  CHAN(["📱 paired channel<br/>WhatsApp · Telegram · Signal · Matrix"]):::channel
   USER(["👤 you (Mac)"]):::user
   INTERNET(["INTERNET"]):::internet
  
